@@ -30,7 +30,7 @@ export default function Sidebar() {
         <AddTask/>
       <h2 className="font-bold text-lg mb-2">Goals</h2>
       <ul className="mb-4 space-y-2">
-        {goals.map((goal) => (
+        {goals.map((goal) => ( 
           <li
             key={goal._id}
             className={`cursor-pointer p-2 rounded ${
