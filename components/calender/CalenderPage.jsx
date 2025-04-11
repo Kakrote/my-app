@@ -65,7 +65,7 @@ export default function CalendarPage() {
     };
     dispatch(createEvent(newEvent))
     .then(()=>{
-        toast.success('✅ Event added!');
+        toast.success('Event added!');
     });
     setDraggedTask(null);
     setTitleValue('');
@@ -77,7 +77,7 @@ export default function CalendarPage() {
     if (confirm(`Delete event "${event.title}"?`)) {
       dispatch(deleteEvent(event._id))
       .then(() => {
-        toast.success('🗑️ Event deleted');
+        toast.success('Event deleted');
       });
     }
   };

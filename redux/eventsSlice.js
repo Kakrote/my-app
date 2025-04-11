@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../api/axiosapis'; // Axios instance (baseURL: http://localhost:5000/api)
+import api from '../api/axiosapis'; 
 
-// Thunk: GET all events from backend
+
 export const fetchEvents = createAsyncThunk('events/fetchEvents', async () => {
   const res = await api.get('/event');
   return res.data;
 });
 
-// Thunk: POST new event to backend
+
 export const createEvent = createAsyncThunk('events/createEvent', async (data) => {
   const res = await api.post('/event', data);
   return res.data.event;
@@ -26,7 +26,7 @@ const eventsSlice = createSlice({
     error: null,
   },
   reducers: {
-    // Optional if needed later:
+ 
     updateEvent: (state, action) => {
       const index = state.events.findIndex(e => e._id === action.payload._id);
       if (index !== -1) state.events[index] = action.payload;
