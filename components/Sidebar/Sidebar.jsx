@@ -6,6 +6,7 @@ import { fetchTasksByGoal } from '@/redux/tasksSlice';
 import { fetchGoals } from '@/redux/goalsSlice';
 import DraggableTask from './DraggableTask';
 import AddTask from './AddTask';
+import AddGoal from './AddGoal';
 
 export default function Sidebar() {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ export default function Sidebar() {
 
   return (
     <div className="w-[20%] bg-gray-100 text-black p-4 border-r min-h-screen rounded-lg mr-1">
+        <AddGoal/>
         <AddTask/>
       <h2 className="font-bold text-lg mb-2">Goals</h2>
       <ul className="mb-4 space-y-2">
