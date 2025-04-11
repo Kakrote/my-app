@@ -11,6 +11,12 @@ export const createGoal = createAsyncThunk('goals/createGoal', async (data) => {
     return res.data.goal;
 });
 
+export const deleteGoal = createAsyncThunk('goals/deleteGoal', async (id) => {
+    await api.delete(`/goal/${id}`);
+    return id;
+  });
+  
+
 
 const goalsSlice = createSlice({
     name: 'goals',
@@ -27,7 +33,11 @@ const goalsSlice = createSlice({
             })
             .addCase(createGoal.fulfilled, (state, action) => {
                 state.goals.push(action.payload);
-            });
+            })
+            .addCase(deleteGoal.fulfilled, (state, action) => {
+                state.goals = state.goals.filter(goal => goal._id !== action.payload);
+              });
+              
 
     },
 });
