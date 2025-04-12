@@ -1,50 +1,68 @@
-/* overall calendar */
+/* calendar container */
 .rbc-calendar {
-    background-color: #fefefe;
-    border-radius: 12px;
-    box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.08);
-    padding: 10px;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  
-  /* header bar */
-  .rbc-toolbar {
-    background: white;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    font-size: 16px;
-    font-weight: 500;
-  }
-  
-  /* time slot labels (left side) */
-  .rbc-time-content {
-    border-top: 1px solid #ddd;
-  }
-  
-  /* event box */
-  .rbc-event {
-    background-color: #2563eb; /* Tailwind's blue-600 */
-    border: none;
-    padding: 4px 8px;
-    color: white;
-    font-size: 13px;
-    border-radius: 6px;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.1);
-  }
-  
-  /* when user selects empty slot */
-  .rbc-slot-selection {
-    background-color: rgba(37, 99, 235, 0.1);
-  }
-  
-  /* current time line */
-  .rbc-current-time-indicator {
-    background-color: #ef4444; /* Tailwind's red-500 */
-  }
-  
-  /* today column background */
-  .rbc-day-slot.rbc-today {
-    background-color: rgba(59, 130, 246, 0.05); /* blue-500 faded */
-  }
-  
+  background-color: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 10px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* header toolbar */
+.rbc-toolbar {
+  background: white;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* left side times */
+.rbc-time-content {
+  border-top: 1px solid #ddd;
+}
+
+/* slot selection highlight */
+.rbc-slot-selection {
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+/* current time line */
+.rbc-current-time-indicator {
+  background-color: #ef4444; /* red-500 */
+}
+
+/* today column */
+.rbc-day-slot.rbc-today {
+  background-color: rgba(59, 130, 246, 0.05); /* blue-500 faded */
+}
+
+/* 👇 Event box */
+.rbc-event {
+  position: relative; /* so resize handle sits inside */
+  background-color: #2563eb; /* blue-600 */
+  color: white;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* overflow: hidden; */
+}
+
+/* 👇 Resize handle */
+.rbc-event-resize {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 8px;
+  width: 100%;
+  cursor: nesw-resize;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+
+/* force interaction */
+.rbc-event-content {
+  pointer-events: auto;
+}

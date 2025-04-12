@@ -18,19 +18,22 @@ export const deleteEvent = createAsyncThunk('events/deleteEvent', async (id) => 
     return id;
   });
 
+  
+export const updateEvent = createAsyncThunk(
+    'events/updateEvent',
+    async (eventData) => {
+      const res = await api.put(`/event/${eventData._id}`, eventData);
+      return res.data;
+    }
+  );
+  
+
 const eventsSlice = createSlice({
   name: 'events',
   initialState: {
     events: [],
     loading: false,
     error: null,
-  },
-  reducers: {
- 
-    updateEvent: (state, action) => {
-      const index = state.events.findIndex(e => e._id === action.payload._id);
-      if (index !== -1) state.events[index] = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -50,9 +53,16 @@ const eventsSlice = createSlice({
       })
       .addCase(deleteEvent.fulfilled, (state, action) => {
         state.events = state.events.filter(e => e._id !== action.payload);
+      })
+      .addCase(updateEvent.fulfilled, (state, action) => {
+        const index = state.events.findIndex((e) => e._id === action.payload._id);
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
       });
+           
+      
   },
 });
 
-export const { updateEvent} = eventsSlice.actions;
 export default eventsSlice.reducer;

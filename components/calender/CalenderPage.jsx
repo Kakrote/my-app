@@ -8,10 +8,14 @@ import { fetchEvents, createEvent, deleteEvent, updateEvent } from '@/redux/even
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../../styles/calendar.css';
 import { useDrop } from 'react-dnd';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 const localizer = momentLocalizer(moment);
+const DragAndDropCalendar=withDragAndDrop(Calendar)
 
 export default function CalendarPage() {
+  const [refreshKey,setRefreshKey]=useState(0)
   const events = useSelector((state) => state.events.events);
   const dispatch = useDispatch();
 
@@ -80,6 +84,32 @@ export default function CalendarPage() {
     }
   };
 
+  const handleEventResize = ({ event, start, end }) => {
+    // console.log('Resize triggered!', { event, start, end })
+    console.log("event from resize",event)
+    console.log("start",start)
+    console.log("end",end)
+    const updatedEvent = {
+      // ...event,
+      _id:event._id,
+      title:event.title,
+      start,
+      end,
+    };
+    dispatch(updateEvent(updatedEvent)).then(()=>{
+      setRefreshKey((prev)=>prev+1)
+    })
+  };
+  
+  const handelEventDrop=({event,start,end})=>{
+    const update={
+      ...event,
+      start,
+      end,
+    }
+    dispatch(updateEvent(update))
+  }
+
   const resetModal = () => {
     setDraggedTask(null);
     setTitleValue('');
@@ -92,16 +122,22 @@ export default function CalendarPage() {
       <h2 className="text-xl font-bold mb-4">My Calendar</h2>
 
       <div ref={dropRef} className={`${isOver ? 'bg-blue-50 rounded-md' : ''}`}>
-        <Calendar
+        <DragAndDropCalendar
+        key={refreshKey}
           localizer={localizer}
           events={events.map((e) => ({
             ...e,
             start: new Date(e.start),
             end: new Date(e.end),
+            draggable: true,
           }))}
           startAccessor="start"
           endAccessor="end"
           selectable
+          resizable={true}
+          draggableAccessor="draggable"
+          onEventResize={handleEventResize}
+          onEventDrop={handelEventDrop}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleEventClick}
           style={{ height: 600, padding: 8, color: 'black' }}
