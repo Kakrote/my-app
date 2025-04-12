@@ -15,7 +15,7 @@ const localizer = momentLocalizer(moment);
 const DragAndDropCalendar=withDragAndDrop(Calendar)
 
 export default function CalendarPage() {
-  const [refreshKey,setRefreshKey]=useState(0)
+  // const [refreshKey,setRefreshKey]=useState(0)
   const events = useSelector((state) => state.events.events);
   const dispatch = useDispatch();
 
@@ -97,7 +97,7 @@ export default function CalendarPage() {
       end,
     };
     dispatch(updateEvent(updatedEvent)).then(()=>{
-      setRefreshKey((prev)=>prev+1)
+      // setRefreshKey((prev)=>prev+1)
     })
   };
   
@@ -123,7 +123,7 @@ export default function CalendarPage() {
 
       <div ref={dropRef} className={`${isOver ? 'bg-blue-50 rounded-md' : ''}`}>
         <DragAndDropCalendar
-        key={refreshKey}
+        // key={refreshKey}
           localizer={localizer}
           events={events.map((e) => ({
             ...e,
