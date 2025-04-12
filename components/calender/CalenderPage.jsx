@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-
-import {
-  fetchEvents,
-  createEvent,
-  deleteEvent,
-} from '@/redux/eventsSlice';
+import { fetchEvents, createEvent, deleteEvent, updateEvent } from '@/redux/eventsSlice';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../../styles/calendar.css';
 import { useDrop } from 'react-dnd';
@@ -26,6 +20,8 @@ export default function CalendarPage() {
   const [draggedTask, setDraggedTask] = useState(null);
   const [titleValue, setTitleValue] = useState('');
   const [colorValue, setColorValue] = useState('#2563eb');
+  const [selectedEventView, setSelectedEventView] = useState(null);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     dispatch(fetchEvents());
@@ -63,23 +59,32 @@ export default function CalendarPage() {
       color: colorValue,
       category: 'default',
     };
-    dispatch(createEvent(newEvent))
-    .then(()=>{
-        toast.success('Event added!');
-    });
+    dispatch(createEvent(newEvent));
+    resetModal();
+  };
+
+  const handleEventClick = (event) => {
+    setSelectedEventView(event);
+    setEditMode(false);
+  };
+
+  const handleEventUpdate = () => {
+    dispatch(updateEvent(selectedEventView));
+    setEditMode(false);
+  };
+
+  const handleDelete = () => {
+    if (confirm(`Delete event "${selectedEventView.title}"?`)) {
+      dispatch(deleteEvent(selectedEventView._id));
+      setSelectedEventView(null);
+    }
+  };
+
+  const resetModal = () => {
     setDraggedTask(null);
     setTitleValue('');
     setColorValue('#2563eb');
     setShowModal(false);
-  };
-
-  const handleEventClick = (event) => {
-    if (confirm(`Delete event "${event.title}"?`)) {
-      dispatch(deleteEvent(event._id))
-      .then(() => {
-        toast.success('Event deleted');
-      });
-    }
   };
 
   return (
@@ -107,7 +112,7 @@ export default function CalendarPage() {
                   backgroundColor: event.color || '#2563eb',
                   padding: '4px 8px',
                   borderRadius: '6px',
-                  color: '#fff',
+                  color: 'black',
                   fontSize: '0.85rem',
                 }}
               >
@@ -118,6 +123,7 @@ export default function CalendarPage() {
         />
       </div>
 
+      {/* Event Add Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl p-6 w-[320px] animate-scale-in">
@@ -125,7 +131,6 @@ export default function CalendarPage() {
             <form onSubmit={handleEventAdd}>
               <input
                 type="text"
-                name="title"
                 placeholder="Event Title"
                 className="w-full text-black border p-2 mb-3"
                 value={titleValue}
@@ -133,61 +138,117 @@ export default function CalendarPage() {
                 required
               />
 
-              <label className="block mb-1 font-medium text-sm text-gray-700">Start Date & Time</label>
+              <label className="block text-sm mb-1 font-medium text-gray-700">Start</label>
               <input
                 type="datetime-local"
                 className="w-full text-black border p-2 mb-3"
-                value={
-                  selectedSlot?.start
-                    ? new Date(selectedSlot.start).toISOString().slice(0, 16)
-                    : ''
-                }
-                onChange={(e) =>
-                  setSelectedSlot((prev) => ({
-                    ...prev,
-                    start: new Date(e.target.value),
-                  }))
-                }
+                value={selectedSlot?.start ? new Date(selectedSlot.start).toISOString().slice(0, 16) : ''}
+                onChange={(e) => setSelectedSlot((prev) => ({ ...prev, start: new Date(e.target.value) }))}
                 required
               />
 
-              <label className="block mb-1 font-medium text-sm text-gray-700">End Date & Time</label>
+              <label className="block text-sm mb-1 font-medium text-gray-700">End</label>
               <input
                 type="datetime-local"
                 className="w-full text-black border p-2 mb-3"
-                value={
-                  selectedSlot?.end
-                    ? new Date(selectedSlot.end).toISOString().slice(0, 16)
-                    : ''
-                }
-                onChange={(e) =>
-                  setSelectedSlot((prev) => ({
-                    ...prev,
-                    end: new Date(e.target.value),
-                  }))
-                }
+                value={selectedSlot?.end ? new Date(selectedSlot.end).toISOString().slice(0, 16) : ''}
+                onChange={(e) => setSelectedSlot((prev) => ({ ...prev, end: new Date(e.target.value) }))}
                 required
               />
 
               <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setDraggedTask(null);
-                  }}
-                  className="bg-gray-300 px-3 py-1 rounded"
-                >
+                <button type="button" onClick={resetModal} className="bg-gray-300 px-3 py-1 rounded">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
-                >
+                <button type="submit" className="bg-blue-500 text-white px-3 py-1 rounded">
                   Add
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Event View/Edit Modal */}
+      {selectedEventView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-[320px] animate-scale-in">
+            {editMode ? (
+              <>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Edit Event</h3>
+                <input
+                  type="text"
+                  className="w-full text-black border p-2 mb-3"
+                  value={selectedEventView.title}
+                  onChange={(e) =>
+                    setSelectedEventView((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                />
+                <input
+                  type="datetime-local"
+                  className="w-full text-black border p-2 mb-3"
+                  value={new Date(selectedEventView.start).toISOString().slice(0, 16)}
+                  onChange={(e) =>
+                    setSelectedEventView((prev) => ({ ...prev, start: new Date(e.target.value) }))
+                  }
+                />
+                <input
+                  type="datetime-local"
+                  className="w-full text-black border p-2 mb-3"
+                  value={new Date(selectedEventView.end).toISOString().slice(0, 16)}
+                  onChange={(e) =>
+                    setSelectedEventView((prev) => ({ ...prev, end: new Date(e.target.value) }))
+                  }
+                />
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setEditMode(false)}
+                    className="bg-gray-300 px-3 py-1 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEventUpdate}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Event Details</h3>
+                <p className="mb-2 text-black">
+                  <strong>Title:</strong> {selectedEventView.title}
+                </p>
+                <p className="mb-2 text-black">
+                  <strong>Start:</strong> {new Date(selectedEventView.start).toLocaleString()}
+                </p>
+                <p className="mb-2 text-black">
+                  <strong>End:</strong> {new Date(selectedEventView.end).toLocaleString()}
+                </p>
+                <div className="flex justify-between">
+                  <button
+                    onClick={handleDelete}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setSelectedEventView(null)}
+                    className="bg-gray-500 px-3 py-1 rounded"
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
